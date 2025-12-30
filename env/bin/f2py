@@ -1,4 +1,4 @@
-#!/home/aric/Documents/projects/Zpolitic-game/env/bin/python3.11
+#!/home/aric/Documents/projects/politic-game/env/bin/python3.11
 # -*- coding: utf-8 -*-
 import re
 import sys
