@@ -1,9 +1,12 @@
 #this is the file that should make the game work
 import numpy as np
+import sympy as sp
 from pygnuplot import gnuplot as gp
 import math as m
 
 #TODO:
+#woooooooooooooooooo ok im a litttle ahead of myself
+#
 #   simulate a population can simulate the following traits
 #       1) individual members that have abatraraly many political opinions.
 #            #these need to be able to be distinct or non distinct. (all people who like cats
