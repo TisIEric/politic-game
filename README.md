@@ -1,0 +1,1 @@
+This is a "game" that uses combined normal distributions to make what appears to be a convincing simulation of a modern political landscape. Made by me, AEric. I have made great use of Desmos, Python, and Gnuplot on this project.
