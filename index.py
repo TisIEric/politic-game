@@ -19,35 +19,36 @@ import math as m
 ## gnuplot setup
 h = 60
 w = h/2
-plane = gp.Gnuplot(terminal = 'dumb size '+ str(h)+','+str(m.floor(h/2)),
-    output = '"graph.txt"',
-    xrange= '[-2.5:2.5]',
-    yrange = '[ -2 to 2 ]')
+# size '+ str(h)+','+str(m.floor(h/2))
+plane = gp.Gnuplot(terminal = 'pngcairo',
+    output = '"graph.png"'#,
+    #xrange= '[-2.5:2.5]',
+    #yrange = '[ -2 to 2 ]'
+)
 
 plane.cmd('set samples 1000')
 
 
 
 #define nomral function
-plane.cmd('normal(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp( -(x-mu)**2 / (2*sigma**2) )')
-def normal(x, mean, sd):
-    prob_density = (np.pi*sd) * np.exp(-0.5*((x-mean)/sd)**2)
+plane.cmd('normal(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp(-0.5*((x-mu)/sigma)**2)')
+def normal(mu,sigma):
+    return 1/sigma*m.sqrt(2*m.pi)
+    #return f'1./({sigma}*sqrt(2*pi)) * exp(-0.5*((x-{mu})/{sigma})**2)'
 
-    return prob_density
-
-mean = 0
-sd = 1
-x = 1
-result = normal(x, mean, sd)
-print(result)
-
-
-
-
-class opinion:
+def writeRule():
     pass
+
+class axis:
+    def __init__(self, subject, mu=0, sigma=1):
+        self.rule = normal(mu,sigma)
+        self.subject = subject
+    def declare(self):
+        plane.cmd(f'{self.subject}(x) = '+self.rule)
     #on a scale from -1 to 1
     # posibly the merger of multiple gausian functions.
+dogaxis = axis("dogs")
+dogaxis.declare()
 #_______________________________________________________________________________
 #1) Ceate a gnuplotuplot context. Set plotting style at initialization
 
@@ -55,17 +56,10 @@ class opinion:
 #2) Set plotting style whenever needed.
 
 #3) Expressions and caculations
-plane.cmd(
-    'b(x) = exp(-x**2)',
-    'f1(x) = b(x)',
-    'f2(x) = -b(x)',
-    'f3(x) = sin(x)*b(x)',
-        'd1(x) = Gauss(x, 0.5, 0.5)',
-        'd2(x) = Gauss(x,  2.,  1.)',
-        'd3(x) = Gauss(x, -1.,  2.)')
+#plane.cmd('')
 
 #4) Plotting
 #g.plot('d1(x) title "μ =  0.5 σ = 0.5"',
 #        'd2(x) title "μ =  2.0 σ = 1.0"',
 #        'd3(x) title "μ = -1.0 σ = 2.0"')
-plane.plot('f1(x)','f2(x)','f3(x)')
+plane.plot('dogs(x) title "opinioin of dogs"')
