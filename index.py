@@ -32,16 +32,19 @@ plane.cmd('set samples 1000')
 
 #define nomral function
 plane.cmd('normal(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp(-0.5*((x-mu)/sigma)**2)')
-def normal(mu,sigma):
-    return 1/sigma*m.sqrt(2*m.pi)
+def normal(x):
+    sigma = 1
+    mu = 0
+    return 1/sigma*m.sqrt(2*m.pi)* sp.exp(-0.5*((x-mu)/sigma)**2)
     #return f'1./({sigma}*sqrt(2*pi)) * exp(-0.5*((x-{mu})/{sigma})**2)'
 
 def writeRule():
-    pass
+    x = sp.symbols('x')
+    return sp.diff(normal(x), x)
 
 class axis:
     def __init__(self, subject, mu=0, sigma=1):
-        self.rule = normal(mu,sigma)
+        self.rule = '1'#normal(mu,sigma)
         self.subject = subject
     def declare(self):
         plane.cmd(f'{self.subject}(x) = '+self.rule)
@@ -62,4 +65,5 @@ dogaxis.declare()
 #g.plot('d1(x) title "μ =  0.5 σ = 0.5"',
 #        'd2(x) title "μ =  2.0 σ = 1.0"',
 #        'd3(x) title "μ = -1.0 σ = 2.0"')
-plane.plot('dogs(x) title "opinioin of dogs"')
+#plane.plot('dogs(x) title "opinioin of dogs"')
+print(writeRule())
