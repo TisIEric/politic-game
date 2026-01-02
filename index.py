@@ -4,18 +4,8 @@ import sympy as sp
 from pygnuplot import gnuplot as gp
 import math as m
 
-#TODO:
-#woooooooooooooooooo ok im a litttle ahead of myself
-#
-#   simulate a population can simulate the following traits
-#       1) individual members that have abatraraly many political opinions.
-#            #these need to be able to be distinct or non distinct. (all people who like cats
-#            #also like dogs, or vice verca)
-#       2) above, with apathy
-#       3) ability to produce political figures with specific ideas
-#       4) size
-#       5)
-#math shit; its kinda beyond me what this does
+#math shit; its kinda beyond me what this does. gonna look up what symbols
+#are at some point
 x = sp.symbols('x')
 
 ## gnuplot setup
@@ -31,19 +21,21 @@ plane = gp.Gnuplot(terminal = 'pngcairo',
 plane.cmd('set samples 1000')
 
 
+#>>MAYBE DELETE<<
+#define nomral function.
+#plane.cmd('normal(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp(-0.5*((x-mu)/sigma)**2)')
 
-#define nomral function
-plane.cmd('normal(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp(-0.5*((x-mu)/sigma)**2)')
 def normal(x, mu=0, sigma=1):
     return 1/(sigma*m.sqrt(2*m.pi))* sp.exp(-0.5*((x-mu)/sigma)**2)
     #return f'1./({sigma}*sqrt(2*pi)) * exp(-0.5*((x-{mu})/{sigma})**2)'
 
-#sp.diff(normal(x,0,1), x)
-
-
 
 f1 = normal(x)
+plane.cmd(f'f1(x) = {f1}')
+
 f2 = normal(x,5,3)
+plane.cmd(f'f2(x) = {f2}')
+
 
 def averagedNormal(inputs):
     #input should be a list of  functions
@@ -59,6 +51,8 @@ def averagedNormal(inputs):
         print("\nFUNCTION AVERAGE ERROR: sum of weights too SMALL")
 
     return output
+
+
 
 class axis:
     def __init__(self, subject, factors):
@@ -76,20 +70,10 @@ class axis:
     #on a scale from -1 to 1
     # posibly the merger of multiple gausian functions.
 
+#define axes
 dogaxis = axis("dogs", [[f1,0.9], [f2,0.1]])
 dogaxis.define()
-#_______________________________________________________________________________
-#1) Ceate a gnuplotuplot context. Set plotting style at initialization
 
-
-#2) Set plotting style whenever needed.
-
-#3) Expressions and caculations
-plane.cmd(f'f1(x) = {f1}')
-plane.cmd(f'f2(x) = {f2}')
-#4) Plotting
-#g.plot('d1(x) title "μ =  0.5 σ = 0.5"',
-#        'd2(x) title "μ =  2.0 σ = 1.0"',
-#        'd3(x) title "μ = -1.0 σ = 2.0
+#this is debug thing really
 plane.plot('dogs(x) title "averaged function"'#,'f1(x)','f2(x)'
 )
