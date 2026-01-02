@@ -19,7 +19,7 @@ if pngTerminal:
     GPterminal = "pngcairo"
     GPoutput = "graph.png"
 else:
-    GPterminal = f'dumb size {h*2}, {h}'
+    GPterminal = f'dumb size {h*3}, {h}'
     GPoutput = "graph.txt"
 plane = gp.Gnuplot(terminal = f'{GPterminal} ',
     output = f'"{GPoutput}"',
