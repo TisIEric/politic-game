@@ -12,11 +12,17 @@ x = symbols('x')
 ## gnuplot setup
 h = 60#unused
 w = 10
-# f'dumb size {h*2}, {h} <-- this is for ascii graphs
 
 samples = 5000
-plane = gp.Gnuplot(terminal = 'pngcairo ',
-    output = '"graph.txt"',
+pngTerminal = False
+if pngTerminal:
+    GPterminal = "pngcairo"
+    GPoutput = "graph.png"
+else:
+    GPterminal = f'dumb size {h*2}, {h}'
+    GPoutput = "graph.txt"
+plane = gp.Gnuplot(terminal = f'{GPterminal} ',
+    output = f'"{GPoutput}"',
     xrange= f'[-{w}:{w}+5]',
     yrange = '[ 0 to  ]'
 )
@@ -72,9 +78,7 @@ glob.addNormal()
 glob.addNormal(5,3,"f2")
 glob.addNormal(-2,0.3)
 glob.addNormal()
-glob.addNormal()
-glob.addNormal()
-glob.addNormal()
+
 #f4 = normal
 
 def averageNormals(inputs):
