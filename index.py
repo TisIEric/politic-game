@@ -5,7 +5,7 @@ from pygnuplot import gnuplot as gp
 import math                   as m
 
 #changlog for commit:
-#cleanned up some comments again, renamed function to "averageNormals()", added cumulative distribution function to axis class, added the jointNormalsProbilty() function (that typo is on purpose), improved the way that normals are made (they are now in "glob" variabel)
+#
 
 
 #math shit; its kinda beyond me what this does. gonna look up what symbols
@@ -39,7 +39,7 @@ class normalContainer:
         self.indicator = indicator
         self.i = 1
 
-    def addNormal(self, cause="noName", mu=0, sigma=1):
+    def addNormal(self, mu=0, sigma=1,cause="noName"):
 
         if cause=="noName" or cause ==f"{self.indicator}{self.i}":
             cause = f"{self.indicator}{self.i}"
@@ -58,19 +58,27 @@ class axis:
 
         self.subject = subject
         self.factors = factors
+    def resetDefine(self):
+        self.rule = averageNormals(self.factors)
+        self.densityRule = self.rule
+        self.cumulativeRule = integrate(self.rule,(x,-oo,x))
     def define(self):
         plane.cmd(f'{self.subject}(x) = {self.rule}')
     def setRule(self):
         self.rule = averageNormals(self.factors)
     def addFactor(self, function, weight):
-        self.factors += []
+        self.factors.append([function, weight])
+        self.resetDefine()
 
 
 glob = normalContainer()
 glob.addNormal()
-glob.addNormal("f2",5,3)
+glob.addNormal(5,3,"f2")
+glob.addNormal(-2,0.3)
 glob.addNormal()
-
+glob.addNormal()
+glob.addNormal()
+glob.addNormal()
 #f4 = normal
 
 def averageNormals(inputs):
@@ -103,8 +111,11 @@ def jointNormalsProbilty(inputs, lower_limit=-oo, upper_limit=x):
 dogaxis = axis("dogs", [[glob.normals["f1"],0.9], [glob.normals["f2"],0.1]])
 dogaxis.define()
 
+cataxis = axis("cats", [[glob.normals["f3"],0.5]])
+cataxis.addFactor(glob.normals["f4"],0.5)
+cataxis.define()
 
-plane.cmd(f'a(x) = {dogaxis.cumulativeRule}')
+#plane.cmd(f'a(x) = {dogaxis.cumulativeRule}')
 #this is debug thing really
-plane.plot('dogs(x) title "averaged function"', 'a(x) title "CDF"', 'f3(x)'
+plane.plot('dogs(x) title "the dog one"', 'cats(x) title "the cat one"'
 )
