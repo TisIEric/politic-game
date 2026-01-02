@@ -10,12 +10,12 @@ x = sp.symbols('x')
 
 ## gnuplot setup
 h = 60
-w = h/2
+w = 10
 # size '+ str(h)+','+str(m.floor(h/2))
 plane = gp.Gnuplot(terminal = 'pngcairo',
     output = '"graph.png"',
-    xrange= '[-10:10]'#,
-    #yrange = '[ -2 to 2 ]'
+    xrange= f'[-{w}:{w}]',
+    yrange = '[ 0 to  ]'
 )
 
 plane.cmd('set samples 1000')
