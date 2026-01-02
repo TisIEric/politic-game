@@ -1,79 +1,110 @@
-#this is the file that should make the game work
-import numpy as np
-import sympy as sp
+#see that fancy formatting there??? pretty cool huh
+#from numpy     import *
+from sympy     import *
 from pygnuplot import gnuplot as gp
-import math as m
+import math                   as m
+
+#changlog for commit:
+#cleanned up some comments again, renamed function to "averageNormals()", added cumulative distribution function to axis class, added the jointNormalsProbilty() function (that typo is on purpose), improved the way that normals are made (they are now in "glob" variabel)
+
 
 #math shit; its kinda beyond me what this does. gonna look up what symbols
 #are at some point
-x = sp.symbols('x')
+x = symbols('x')
 
 ## gnuplot setup
-h = 60
+h = 60#unused
 w = 10
-# size '+ str(h)+','+str(m.floor(h/2))
+# size '+ str(h)+','+str(m.floor(h/2)) <-- |that is for ascii graphs, which
+#                                          |it is starting to look like I
+#                                          |wont do.
+samples = 1000
 plane = gp.Gnuplot(terminal = 'pngcairo',
     output = '"graph.png"',
-    xrange= f'[-{w}:{w}]',
+    xrange= f'[-{w}:{w}+5]',
     yrange = '[ 0 to  ]'
 )
 
-plane.cmd('set samples 1000')
+plane.cmd(f'set samples {samples}')
+
+def normal(mu=0, sigma=1,x=x):
+    return 1/(sigma*m.sqrt(2*m.pi))* exp(-0.5*((x-mu)/sigma)**2)
+
+functionIterator = 1
 
 
-#>>MAYBE DELETE<<
-#define nomral function.
-#plane.cmd('normal(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp(-0.5*((x-mu)/sigma)**2)')
+class normalContainer:
+    def __init__(self, indicator="f"):
+        self.normals = {}
+        self.indicator = indicator
+        self.i = 1
 
-def normal(x, mu=0, sigma=1):
-    return 1/(sigma*m.sqrt(2*m.pi))* sp.exp(-0.5*((x-mu)/sigma)**2)
-    #return f'1./({sigma}*sqrt(2*pi)) * exp(-0.5*((x-{mu})/{sigma})**2)'
+    def addNormal(self, cause="noName", mu=0, sigma=1):
+
+        if cause=="noName" or cause ==f"{self.indicator}{self.i}":
+            cause = f"{self.indicator}{self.i}"
+            self.i += 1
+
+        self.normals[cause] = normal(mu, sigma,x)
+        plane.cmd(f'{cause}(x) = {self.normals[cause]}')
+
+class axis:
+    def __init__(self, subject, factors):
+        #factors have a function and a weight in a list [function, weight]
+        self.rule = averageNormals(factors)
+        self.densityRule = self.rule
+        #|^this is just to make some things more readable
+        self.cumulativeRule = integrate(self.rule,(x,-oo,x))
+
+        self.subject = subject
+        self.factors = factors
+    def define(self):
+        plane.cmd(f'{self.subject}(x) = {self.rule}')
+    def setRule(self):
+        self.rule = averageNormals(self.factors)
+    def addFactor(self, function, weight):
+        self.factors += []
 
 
-f1 = normal(x)
-plane.cmd(f'f1(x) = {f1}')
+glob = normalContainer()
+glob.addNormal()
+glob.addNormal("f2",5,3)
+glob.addNormal()
 
-f2 = normal(x,5,3)
-plane.cmd(f'f2(x) = {f2}')
+#f4 = normal
 
-
-def averagedNormal(inputs):
+def averageNormals(inputs):
     #input should be a list of  functions
     output = 0
     weightTotal = 0
     for factor in inputs:
         output += factor[0]*factor[1]
         weightTotal += factor[1]
-    print(weightTotal)
     if weightTotal > 1:
         print("\nFUNCTION AVERAGE ERROR: sum of weights too LARGE\n")
     elif weightTotal < 1:
         print("\nFUNCTION AVERAGE ERROR: sum of weights too SMALL")
 
     return output
+def jointNormalsProbilty(inputs, lower_limit=-oo, upper_limit=x):
+    #HERE inputs IS ASKING FOR A LIST OF JUST THE FUNCTIONS!!!!
+    #very important folks, not a lot of people know this.
+    output = 1
+    for function in inputs:
+        output = output * integrate(function, (x, lower_limit, upper_limit))
+    return diff(ouput)
 
 
-
-class axis:
-    def __init__(self, subject, factors):
-        #factors have a function and a weight in a list [function, weight]
-        self.rule = averagedNormal(factors)
-        self.subject = subject
-        self.factors = factors
-    def define(self):
-        plane.cmd(f'{self.subject}(x) = {self.rule}')
-    def setRule(self):
-        self.rule = averagedNormal(self.factors)
-    def addFactor(self, function, weight):
-        self.factors += []
 
     #on a scale from -1 to 1
     # posibly the merger of multiple gausian functions.
 
 #define axes
-dogaxis = axis("dogs", [[f1,0.9], [f2,0.1]])
+dogaxis = axis("dogs", [[glob.normals["f1"],0.9], [glob.normals["f2"],0.1]])
 dogaxis.define()
 
+
+plane.cmd(f'a(x) = {dogaxis.cumulativeRule}')
 #this is debug thing really
-plane.plot('dogs(x) title "averaged function"'#,'f1(x)','f2(x)'
+plane.plot('dogs(x) title "averaged function"', 'a(x) title "CDF"', 'f3(x)'
 )
