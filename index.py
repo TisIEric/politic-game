@@ -4,9 +4,6 @@ from sympy     import *
 from pygnuplot import gnuplot as gp
 import math                   as m
 
-#changlog for commit:
-#
-
 
 #math shit; its kinda beyond me what this does. gonna look up what symbols
 #are at some point
