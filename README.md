@@ -11,7 +11,7 @@ where $\mu$ represents the mean probalitiy value (the average or expected value)
 $$\int_{a}^{b}f(x)dx$$
 
 Probablilties are continuous, so the chance of any specific value approaches 0.
-# Some important equations 
+# Some important equations
 **The Normal Probablilty Density Function**
 
 $$f(x) = \frac{1}{\sqrt{2\pi\sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$

@@ -12,12 +12,11 @@ x = symbols('x')
 ## gnuplot setup
 h = 60#unused
 w = 10
-# size '+ str(h)+','+str(m.floor(h/2)) <-- |that is for ascii graphs, which
-#                                          |it is starting to look like I
-#                                          |wont do.
-samples = 1000
-plane = gp.Gnuplot(terminal = 'pngcairo',
-    output = '"graph.png"',
+# f'dumb size {h*2}, {h} <-- this is for ascii graphs
+
+samples = 5000
+plane = gp.Gnuplot(terminal = 'pngcairo ',
+    output = '"graph.txt"',
     xrange= f'[-{w}:{w}+5]',
     yrange = '[ 0 to  ]'
 )
