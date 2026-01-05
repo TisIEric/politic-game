@@ -14,7 +14,7 @@ h = 60#unused
 w = 10
 
 samples = 5000
-pngTerminal = False
+pngTerminal = True
 if pngTerminal:
     GPterminal = "pngcairo"
     GPoutput = "graph.png"
@@ -30,7 +30,7 @@ plane = gp.Gnuplot(terminal = f'{GPterminal} ',
 plane.cmd(f'set samples {samples}')
 
 def normal(mu=0, sigma=1,x=x):
-    return 1/(sigma*m.sqrt(2*m.pi))* exp(-0.5*((x-mu)/sigma)**2)
+    return 1/(sigma*m.sqrt(2*m.pi))* exp(-0.5*((x - mu)/sigma)**2)
 
 functionIterator = 1
 
@@ -60,26 +60,21 @@ class axis:
 
         self.subject = subject
         self.factors = factors
-    def resetDefine(self):
+    def define(self):
         self.rule = averageNormals(self.factors)
         self.densityRule = self.rule
         self.cumulativeRule = integrate(self.rule,(x,-oo,x))
-    def define(self):
         plane.cmd(f'{self.subject}(x) = {self.rule}')
     def setRule(self):
         self.rule = averageNormals(self.factors)
     def addFactor(self, function, weight):
+        for curve in self.factors:
+            curve[1] -= weight/len(self.factors)
         self.factors.append([function, weight])
-        self.resetDefine()
+
+        self.define()
 
 
-glob = normalContainer()
-glob.addNormal()
-glob.addNormal(5,3,"f2")
-glob.addNormal(-2,0.3)
-glob.addNormal()
-
-#f4 = normal
 
 def averageNormals(inputs):
     #input should be a list of  functions
@@ -103,17 +98,29 @@ def jointNormalsProbilty(inputs, lower_limit=-oo, upper_limit=x):
     return diff(ouput)
 
 
+glob = normalContainer()
+glob.addNormal(cause="COcats")
+glob.addNormal(cause="COdogs")
+glob.addNormal(-2,0.3)
+glob.addNormal()
+
+#f4 = normal
+#define axes
+dogaxis = axis("dogs", [[glob.normals["COdogs"],1]])
+dogaxis.define()
+
+cataxis = axis("cats", [[glob.normals["COcats"],1.0]])
+
+cataxis.addFactor(glob.normals["f1"],0.9)
+print(cataxis.factors[0][1])
+cataxis.define()
+
+
 
     #on a scale from -1 to 1
     # posibly the merger of multiple gausian functions.
 
-#define axes
-dogaxis = axis("dogs", [[glob.normals["f1"],0.9], [glob.normals["f2"],0.1]])
-dogaxis.define()
 
-cataxis = axis("cats", [[glob.normals["f3"],0.5]])
-cataxis.addFactor(glob.normals["f4"],0.5)
-cataxis.define()
 
 #plane.cmd(f'a(x) = {dogaxis.cumulativeRule}')
 #this is debug thing really
