@@ -1,16 +1,16 @@
 #see that fancy formatting there??? pretty cool huh
-#from numpy     import *
+#thanks to @statswithbrian on youtube
+#from numpy.random import random
+import numpy                    as np
 from sympy     import *
-from pygnuplot import gnuplot as gp
-import math                   as m
+from pygnuplot import gnuplot   as gp
+import math                     as m
 
-
-#math shit; its kinda beyond me what this does. gonna look up what symbols
-#are at some point
 x = symbols('x')
-
+y = symbols('y')
 ## gnuplot setup
 h = 60#unused
+solveResolution=10**-3#this is the number that the function is subtracted by
 w = 10
 
 samples = 5000
@@ -23,8 +23,8 @@ else:
     GPoutput = "graph.txt"
 plane = gp.Gnuplot(terminal = f'{GPterminal} ',
     output = f'"{GPoutput}"',
-    xrange= f'[-{w}:{w}+5]',
-    yrange = '[ 0 to  ]'
+    #xrange= f'[-{w}:{w}+5]',
+    yrange = '[ 0 to 1 ]'
 )
 
 plane.cmd(f'set samples {samples}')
@@ -81,6 +81,8 @@ def averageNormals(inputs):
     output = 0
     weightTotal = 0
     for factor in inputs:
+        #NOTE the weights are off because of floating point impresicion.
+        #|I am just too lazy to fix it
         output += factor[0]*factor[1]
         weightTotal += factor[1]
     if weightTotal > 1:
@@ -102,7 +104,7 @@ glob = normalContainer()
 glob.addNormal(cause="COcats")
 glob.addNormal(cause="COdogs")
 glob.addNormal(-2,0.3)
-glob.addNormal()
+glob.addNormal(cause="test")
 
 #f4 = normal
 #define axes
@@ -112,17 +114,25 @@ dogaxis.define()
 cataxis = axis("cats", [[glob.normals["COcats"],1.0]])
 
 cataxis.addFactor(glob.normals["f1"],0.9)
-print(cataxis.factors[0][1])
 cataxis.define()
 
+f_inv = solve(Eq(dogaxis.cumulativeRule, y), x)[0]
+print(f_inv)
+i = 0
+while i < 100:
+    place = np.random.uniform(0, 1)
+    high = f_inv.subs(y,place).evalf()
+    high = dogaxis.rule.subs(x, high).evalf()
+    plane.cmd(f'set object circle at first {place},{high} radius char 0.5')
+    i += 1
 
 
     #on a scale from -1 to 1
     # posibly the merger of multiple gausian functions.
 
-
+plane.cmd(f'doginv(x) = {dogaxis.cumulativeRule}')
 
 #plane.cmd(f'a(x) = {dogaxis.cumulativeRule}')
 #this is debug thing really
-plane.plot('dogs(x) title "the dog one"', 'cats(x) title "the cat one"'
+plane.plot('dogs(x)','doginv(x)'
 )
