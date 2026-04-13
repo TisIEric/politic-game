@@ -3,8 +3,10 @@
 #from numpy.random import random
 import numpy                    as np
 from sympy     import *
-from pygnuplot import gnuplot   as gp
+from PyGnuplot import gp
+from sympy.abc import i
 import math                     as m
+
 
 x = symbols('x')
 y = symbols('y')
@@ -21,13 +23,14 @@ if pngTerminal:
 else:
     GPterminal = f'dumb size {h*3}, {h}'
     GPoutput = "graph.txt"
-plane = gp.Gnuplot(terminal = f'{GPterminal} ',
-    output = f'"{GPoutput}"',
-    #xrange= f'[-{w}:{w}+5]',
-    yrange = '[ 0 to 1 ]'
-)
+plane = gp()
+plane.terminal =f'{GPterminal} '
+plane.output = f'"{GPoutput}"'
+plane.xrange= f'[-{w}:{w}+5]'
+plane.yrange = '[ 0 to 1 ]'
 
-plane.cmd(f'set samples {samples}')
+
+plane.c(f'set samples {samples}')
 
 def normal(mu=0, sigma=1,x=x):
     return 1/(sigma*m.sqrt(2*m.pi))* exp(-0.5*((x - mu)/sigma)**2)
@@ -48,7 +51,7 @@ class normalContainer:
             self.i += 1
 
         self.normals[cause] = normal(mu, sigma,x)
-        plane.cmd(f'{cause}(x) = {self.normals[cause]}')
+        plane.c(f'{cause}(x) = {self.normals[cause]}')
 
 class axis:
     def __init__(self, subject, factors):
@@ -64,7 +67,7 @@ class axis:
         self.rule = averageNormals(self.factors)
         self.densityRule = self.rule
         self.cumulativeRule = integrate(self.rule,(x,-oo,x))
-        plane.cmd(f'{self.subject}(x) = {self.rule}')
+        plane.c(f'{self.subject}(x) = {self.rule}')
     def setRule(self):
         self.rule = averageNormals(self.factors)
     def addFactor(self, function, weight):
@@ -116,23 +119,24 @@ cataxis = axis("cats", [[glob.normals["COcats"],1.0]])
 cataxis.addFactor(glob.normals["f1"],0.9)
 cataxis.define()
 
-f_inv = solve(Eq(dogaxis.cumulativeRule, y), x)[0]
-print(f_inv)
+f_inv = solve(dogaxis.cumulativeRule-i, x)[0]
 i = 0
 while i < 100:
-    place = np.random.uniform(0, 1)
-    high = f_inv.subs(y,place).evalf()
-    high = dogaxis.rule.subs(x, high).evalf()
-    plane.cmd(f'set object circle at first {place},{high} radius char 0.5')
+    ex = np.random.uniform(0, 1)
+    wygh = f_inv
+    wygh = f_inv.subs(x, wygh).evalf()
+    plane.c(f'set object circle at first {ex},dogs({ex}) radius char 0.5')
     i += 1
 
 
     #on a scale from -1 to 1
     # posibly the merger of multiple gausian functions.
 
-plane.cmd(f'doginv(x) = {dogaxis.cumulativeRule}')
+plane.c(f'doginv(x) = {dogaxis.cumulativeRule}')
 
-#plane.cmd(f'a(x) = {dogaxis.cumulativeRule}')
+#plane.c(f'a(x) = {dogaxis.cumulativeRule}')
 #this is debug thing really
-plane.plot('dogs(x)','doginv(x)'
-)
+#plane.plot('dogs(x)','doginv(x)'#,f'{f_inv}')
+plane.save('dogs(x)','doginv(x)',"tmp.dat")
+plane.a('plot "tmp.dat"')
+print(f_inv)
